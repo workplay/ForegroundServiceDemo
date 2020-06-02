@@ -11,10 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <service
             android:name=".ForegroundService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:foregroundServiceType="mediaProjection"
+            android:exported="true"/>
 
         <activity android:name=".MainActivity">
             <intent-filter>
