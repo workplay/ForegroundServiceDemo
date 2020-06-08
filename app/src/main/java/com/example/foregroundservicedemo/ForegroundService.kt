@@ -10,10 +10,15 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.LocalServerSocket
+import android.net.LocalSocket
 import android.os.*
 import android.util.Log
 import android.view.Surface
 import androidx.core.app.NotificationCompat
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.FileDescriptor
 import java.io.IOException
 import java.nio.ByteBuffer
 
@@ -27,6 +32,8 @@ class ForegroundService : Service() {
 
     private var mResultCode = 0
     private var mResultData: Intent? = null
+
+    private var fd: FileDescriptor? = null
 
     private fun startScreenCapture() {
         val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -46,6 +53,7 @@ class ForegroundService : Service() {
     private val height = 720
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+
         val CHANNEL_ID = "ForegroundServiceChannel"  // Notification Channel ID.
         val input = intent.getStringExtra("inputExtra")
         mResultCode = intent.getIntExtra("code", -1)
@@ -71,10 +79,14 @@ class ForegroundService : Service() {
         // Create a notification on task bar.
         startForeground(1, notification)
 
+
         startScreenCapture()
 
         return START_STICKY
     }
+
+
+
 
 
     private fun createNotificationChannel(CHANNEL_ID: String) {
@@ -92,7 +104,7 @@ class ForegroundService : Service() {
     }
 
 
-    class FrameCallback {
+    inner class FrameCallback {
         val LOG_TAG: String = "FrameCallback."
 
         fun render(
@@ -101,6 +113,9 @@ class ForegroundService : Service() {
         ) {
             Log.d(LOG_TAG, info.toString())
             Log.d(LOG_TAG,outputBuffer.toString())
+
+
+            IO.writeFully(MainActivity.getFileDescriptor(), outputBuffer)
 
         }
 
