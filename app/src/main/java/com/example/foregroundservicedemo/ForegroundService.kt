@@ -33,8 +33,6 @@ class ForegroundService : Service() {
     private var mResultCode = 0
     private var mResultData: Intent? = null
 
-    private var fd: FileDescriptor? = null
-
     private fun startScreenCapture() {
         val mediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         if (mMediaProjection == null) {

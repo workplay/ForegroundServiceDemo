@@ -5,9 +5,11 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.net.LocalServerSocket
 import android.net.LocalSocket
+import android.net.LocalSocketAddress
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
@@ -16,6 +18,7 @@ import androidx.core.content.ContextCompat
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.FileDescriptor
+import java.net.Socket
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,9 +33,12 @@ class MainActivity : AppCompatActivity() {
     companion object{
         private lateinit var serverSocket: LocalServerSocket
         lateinit var socket: LocalSocket
+        // lateinit var clientSocket: Socket
 
         fun  getFileDescriptor(): FileDescriptor{
             return socket.fileDescriptor
+            // return ParcelFileDescriptor.fromSocket(clientSocket).fileDescriptor
+
         }
     }
 
@@ -58,16 +64,17 @@ class MainActivity : AppCompatActivity() {
                 stopService()
         }
 
-        // build connections here.
-        serverThread = ServerThreadConnect()
-        serverThread!!.start()
-        serverThread!!.join()
 
-        Log.d("shiheng", "Connection built")
+        val thread = ClientThreadConnect()
+        // val thread = ServerThreadConnect()
+
+        thread!!.start()
+        thread!!.join()
 
         //val handlerThread = ServerThreadHanlder()
         //handlerThread!!.start()
 
+        Log.d("shiheng", "Connection built")
     }
 
     override fun onDestroy() {
@@ -75,7 +82,6 @@ class MainActivity : AppCompatActivity() {
         serverIsLoop = false
     }
 
-    var serverThread: ServerThreadConnect? = null
 
     inner class ToastMessageHandler: Handler() {
         override fun handleMessage(msg: Message) {
@@ -95,6 +101,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    inner class ClientThreadConnect : Thread() {
+        override  fun run() {
+            socket = LocalSocket()
+            socket.connect(LocalSocketAddress("scrcpy"))
+        }
+    }
+
     inner class ServerThreadHanlder : Thread() {
         val TAG = "ServerThread"
         private val handler: ToastMessageHandler = ToastMessageHandler()
@@ -111,7 +124,7 @@ class MainActivity : AppCompatActivity() {
                     val msg: String = inputStream.readUTF()
                     val bundle = Bundle().apply { putString("MSG", msg) }
                     val message = Message.obtain().apply { data = bundle }
-
+                    
                     outputStream.writeUTF("Received.")
 
                     handler.sendMessage(message)

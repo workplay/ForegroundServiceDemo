@@ -7,31 +7,30 @@ public class PCServer {
     public static void main(String[] args) {
         Boolean isLoop = true;
         ServerSocket serverSocket = null;
+        Socket socket = null;
+
         try {
-            serverSocket = new ServerSocket(9000);
+            serverSocket = new ServerSocket(8000);
+            socket = serverSocket.accept();
+
+            System.out.println("Client Connected.");
+
+            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+            DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
             while (isLoop) {
-                Socket socket = serverSocket.accept();
-
-                InputStreamReader streamReader = new InputStreamReader(socket.getInputStream());
-                BufferedReader reader = new BufferedReader(streamReader);
-
-                System.out.println("" + reader.readLine());
-
-                socket.close();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (serverSocket != null) {
-                try {
-                    serverSocket.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                Byte msg = inputStream.readByte();
+                System.out.print(msg);
+                if (msg == null) {
+                    break;
                 }
             }
+            socket.close();
+        } catch (Exception e) {
+
         }
+
+
     }
 
 }
