@@ -16,3 +16,7 @@ Alternatively, you can use your PC as server and Android phone as client,
        ffplay -f h264 -codec:v h264 tcp://127.0.0.1:800listen
 3. Uncomment val thread = ClientThreadConnect()
 4. Run app client
+
+
+To decrease ffplay latency,
+ffplay -fflags nobuffer -fflags discardcorrupt -flags low_delay -framedrop  -codec:v h264 tcp://127.0.0.1:8000?listen

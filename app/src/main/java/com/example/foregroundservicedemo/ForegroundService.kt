@@ -109,8 +109,8 @@ class ForegroundService : Service() {
             info: MediaCodec.BufferInfo?,
             outputBuffer: ByteBuffer?
         ) {
-            Log.d(LOG_TAG, info.toString())
-            Log.d(LOG_TAG,outputBuffer.toString())
+            //Log.d(LOG_TAG, info.toString())
+            //Log.d(LOG_TAG,outputBuffer.toString())
 
 
             IO.writeFully(MainActivity.getFileDescriptor(), outputBuffer)
@@ -125,7 +125,7 @@ class ForegroundService : Service() {
     private fun createSurface(): Surface? {
         // Parameters and constants
         val MIME_TYPE = "video/avc" // H.264 Advanced Video Coding
-        val FRAME_RATE = 15 // 30fps
+        val FRAME_RATE = 30 // 30fps
         val IFRAME_INTERVAL = 5 // 5 seconds between I-frames
         val BIT_RATE = 800000 // 5 seconds between I-frames
 
