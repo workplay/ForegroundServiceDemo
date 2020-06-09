@@ -11,8 +11,8 @@ If you use Android phone as the server and PC as client,
 
 Alternatively, you can use your PC as server and Android phone as client,
 1. adb reverse localabstract:scrcpy tcp:8000
-2. Run java PCServer
-   You can also run a ffplay server by the following command:
+2. Run java PCServer.
+   To display video frames, you can also run a ffplay server by the following command:
        ffplay -f h264 -codec:v h264 tcp://127.0.0.1:800listen
 3. Uncomment val thread = ClientThreadConnect()
 4. Run app client
