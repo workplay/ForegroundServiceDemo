@@ -125,9 +125,9 @@ class ForegroundService : Service() {
     private fun createSurface(): Surface? {
         // Parameters and constants
         val MIME_TYPE = "video/avc" // H.264 Advanced Video Coding
-        val FRAME_RATE = 30 // 30fps
-        val IFRAME_INTERVAL = 5 // 5 seconds between I-frames
-        val BIT_RATE = 800000 // 5 seconds between I-frames
+        val FRAME_RATE = 15 // 30fps
+        val IFRAME_INTERVAL = 1000 // 5 seconds between I-frames
+        val BIT_RATE = 8000000 // 5 seconds between I-frames
 
 
         mBufferInfo = MediaCodec.BufferInfo()

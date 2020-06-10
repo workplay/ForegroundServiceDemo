@@ -19,4 +19,5 @@ Alternatively, you can use your PC as server and Android phone as client,
 
 
 To decrease ffplay latency,
-ffplay -fflags nobuffer -fflags discardcorrupt -flags low_delay -framedrop  -codec:v h264 tcp://127.0.0.1:8000?listen
+ffplay -fflags nobuffer -fflags discardcorrupt -flags low_delay -framedrop  \
+-codec:v h264 tcp://127.0.0.1:8000?listen
