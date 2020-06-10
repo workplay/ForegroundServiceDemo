@@ -9,7 +9,6 @@ import android.net.LocalSocketAddress
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.os.ParcelFileDescriptor
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
@@ -18,7 +17,8 @@ import androidx.core.content.ContextCompat
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.FileDescriptor
-import java.net.Socket
+import java.io.IOException
+import java.nio.charset.StandardCharsets
 
 
 class MainActivity : AppCompatActivity() {
@@ -33,12 +33,9 @@ class MainActivity : AppCompatActivity() {
     companion object{
         private lateinit var serverSocket: LocalServerSocket
         lateinit var socket: LocalSocket
-        // lateinit var clientSocket: Socket
 
         fun  getFileDescriptor(): FileDescriptor{
             return socket.fileDescriptor
-            // return ParcelFileDescriptor.fromSocket(clientSocket).fileDescriptor
-
         }
     }
 
@@ -65,14 +62,11 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        val thread = ClientThreadConnect()
-        // val thread = ServerThreadConnect()
+        // val thread = ClientThreadConnect()
+        val thread = ServerThreadConnect()
 
         thread!!.start()
         thread!!.join()
-
-        //val handlerThread = ServerThreadHanlder()
-        //handlerThread!!.start()
 
         Log.d("shiheng", "Connection built")
     }
@@ -82,22 +76,18 @@ class MainActivity : AppCompatActivity() {
         serverIsLoop = false
     }
 
-
-    inner class ToastMessageHandler: Handler() {
-        override fun handleMessage(msg: Message) {
-            Toast.makeText(applicationContext, msg.getData().getString("MSG", "Toast"), Toast.LENGTH_SHORT).show()
-        }
-    }
-
     inner class ServerThreadConnect : Thread() {
         override fun run() {
             var serverSocket: LocalServerSocket? = null
             try {
-                serverSocket = LocalServerSocket("localServer")
+                serverSocket = LocalServerSocket("scrcpy")
                 socket = serverSocket.accept()
+                socket.getOutputStream().write(0);
+
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+            IO.sendDeviceMeta(getFileDescriptor(), "Shiheng Device",480, 720)
         }
     }
 
@@ -105,46 +95,16 @@ class MainActivity : AppCompatActivity() {
         override  fun run() {
             socket = LocalSocket()
             socket.connect(LocalSocketAddress("scrcpy"))
-        }
-    }
-
-    inner class ServerThreadHanlder : Thread() {
-        val TAG = "ServerThread"
-        private val handler: ToastMessageHandler = ToastMessageHandler()
-
-        override fun run() {
             try {
-                Log.d(TAG, "connected.")
-                val inputStream = DataInputStream(socket.inputStream)
-                val outputStream = DataOutputStream(socket.outputStream)
-
-
-                while (serverIsLoop) {
-                    Log.d(TAG, "accept")
-                    val msg: String = inputStream.readUTF()
-                    val bundle = Bundle().apply { putString("MSG", msg) }
-                    val message = Message.obtain().apply { data = bundle }
-                    
-                    outputStream.writeUTF("Received.")
-
-                    handler.sendMessage(message)
-                }
-                socket.close()
+                val controlSocket = LocalSocket()
+                controlSocket.connect(LocalSocketAddress("scrcpy"))
             } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                if (serverSocket != null) {
-                    try {
-                        serverSocket.close()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+                socket.close()
             }
+            IO.sendDeviceMeta(getFileDescriptor(), "Shiheng Device",480, 720)
         }
-
-
     }
+
 
     private fun startService(resultCode: Int, data: Intent?) {
         val serviceIntent = Intent(this, ForegroundService::class.java)
