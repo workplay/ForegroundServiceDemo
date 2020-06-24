@@ -76,7 +76,6 @@ object IOKot {
         bufferInfo: MediaCodec.BufferInfo,
         packetSize: Int
     ) {
-        headerBuffer.clear()
         val pts: Long
         if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
             pts = NO_PTS.toLong() // non-media data packet
@@ -86,9 +85,13 @@ object IOKot {
             }
             pts = bufferInfo.presentationTimeUs - ptsOrigin
         }
-        headerBuffer.putLong(pts)
-        headerBuffer.putInt(packetSize)
-        headerBuffer.flip()
+        headerBuffer.apply {
+            clear()
+            putLong(pts)
+            putInt(packetSize)
+            flip()
+        }
+
         writeFully(fd, headerBuffer)
     }
 }
